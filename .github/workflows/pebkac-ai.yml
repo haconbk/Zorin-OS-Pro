@@ -21,9 +21,6 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 8
     env:
-      LLAMA_DIR: ${{ runner.temp }}/llama.cpp
-      MODEL_DIR: ${{ runner.temp }}/models
-      MODEL_PATH: ${{ runner.temp }}/models/Qwen_Qwen3-0.6B-Q2_K.gguf
       LLAMA_CPP_URL: https://github.com/ggml-org/llama.cpp/releases/download/b8996/llama-b8996-bin-ubuntu-x64.tar.gz
       MODEL_URL: https://huggingface.co/bartowski/Qwen_Qwen3-0.6B-GGUF/resolve/main/Qwen_Qwen3-0.6B-Q2_K.gguf
 
@@ -237,8 +234,8 @@ jobs:
         uses: actions/cache@v5
         with:
           path: |
-            ${{ env.LLAMA_DIR }}
-            ${{ env.MODEL_DIR }}
+            ${{ runner.temp }}/llama.cpp
+            ${{ runner.temp }}/models
           key: ${{ runner.os }}-pebkac-ai-qwen3-0.6b-q2k-llamacpp-b8996-v1
 
       - name: Install pinned local AI runtime
@@ -246,6 +243,9 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          LLAMA_DIR="$RUNNER_TEMP/llama.cpp"
+          MODEL_DIR="$RUNNER_TEMP/models"
+          MODEL_PATH="$MODEL_DIR/Qwen_Qwen3-0.6B-Q2_K.gguf"
 
           mkdir -p "$LLAMA_DIR" "$MODEL_DIR"
 
@@ -264,9 +264,11 @@ jobs:
         shell: bash
         continue-on-error: true
         env:
-          LD_LIBRARY_PATH: ${{ env.LLAMA_DIR }}
+          LD_LIBRARY_PATH: ${{ runner.temp }}/llama.cpp
         run: |
           set -euo pipefail
+          LLAMA_DIR="$RUNNER_TEMP/llama.cpp"
+          MODEL_PATH="$RUNNER_TEMP/models/Qwen_Qwen3-0.6B-Q2_K.gguf"
 
           result="$RUNNER_TEMP/pebkac-result.txt"
           log="$RUNNER_TEMP/pebkac-llama.log"
